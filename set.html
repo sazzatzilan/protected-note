@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Seal the video</title>
+  <meta name="robots" content="noindex">
+  <meta name="theme-color" content="#f3ecdf">
+  <style>
+    :root {
+      --ink: #241c16;
+      --muted: #6f6256;
+      --line: #e3d4c2;
+      --sheet: #fffaf3;
+      --paper: #f3ecdf;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100dvh;
+      padding: 32px 16px 48px;
+      background:
+        radial-gradient(800px 320px at 50% -10%, #fff, transparent 60%),
+        var(--paper);
+      color: var(--ink);
+      font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+    }
+
+    main {
+      width: min(560px, 100%);
+      margin: 0 auto;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(1.8rem, 5vw, 2.3rem);
+      font-weight: 560;
+      letter-spacing: -0.03em;
+      line-height: 1.15;
+    }
+
+    .lead {
+      margin: 10px 0 0;
+      color: var(--muted);
+      font-size: 1.08rem;
+      line-height: 1.45;
+    }
+
+    form {
+      margin-top: 22px;
+      display: grid;
+      gap: 12px;
+    }
+
+    label {
+      display: grid;
+      gap: 6px;
+      font-size: 0.98rem;
+    }
+
+    label span { color: var(--muted); }
+
+    input, textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--ink);
+      border-radius: 12px;
+      padding: 12px 13px;
+      font: inherit;
+      font-size: 16px;
+      font-family: "Segoe UI", system-ui, sans-serif;
+    }
+
+    input:focus, textarea:focus {
+      outline: none;
+      border-color: #c4a98a;
+      box-shadow: 0 0 0 4px rgba(196, 169, 138, 0.25);
+    }
+
+    .secret, .out {
+      margin-top: 18px;
+      background: var(--sheet);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 14px;
+    }
+
+    .secret p, .out p {
+      margin: 0 0 8px;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    code {
+      display: block;
+      min-height: 1.4em;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 0.98rem;
+      word-break: break-all;
+    }
+
+    button {
+      border: 0;
+      border-radius: 12px;
+      padding: 12px 14px;
+      background: var(--ink);
+      color: #f7f1e8;
+      font: inherit;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+
+    button.quiet {
+      background: transparent;
+      color: var(--ink);
+      border: 1px solid var(--line);
+    }
+
+    .row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+
+    .warn {
+      min-height: 1.2em;
+      margin: 8px 0 0;
+      color: #8d3b32;
+      font-size: 0.95rem;
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Seal the video.</h1>
+    <p class="lead">Fill in the seven little things your bestie would know. I'll glue them into one lowercase secret, with no spaces, and hand you a link to send.</p>
+    <form id="maker">
+      <label>Their nickname <input name="nick" autocomplete="off" placeholder="kitty"></label>
+      <label>Their birthday, the short way <input name="birthday" autocomplete="off" placeholder="01"></label>
+      <label>The chocolate they'd pick <input name="chocolate" autocomplete="off" placeholder="dairy milk"></label>
+      <label>The day you became friends <input name="anniversary" autocomplete="off" placeholder="01"></label>
+      <label>Their pet's name <input name="pet" autocomplete="off" placeholder="tom"></label>
+      <label>Kilometers between you <input name="km" inputmode="decimal" autocomplete="off" placeholder="10"></label>
+      <label>What they call you <input name="called" autocomplete="off" placeholder="dumb"></label>
+      <p class="warn" id="warn"></p>
+      <button type="submit">Make my link</button>
+    </form>
+    <div class="secret">
+      <p>The secret, just so you can check it</p>
+      <code id="preview">…</code>
+    </div>
+    <div class="out" id="out" hidden>
+      <p>Send this link. This page stays with you.</p>
+      <textarea id="link" rows="4" readonly></textarea>
+      <div class="row">
+        <button type="button" id="copy">Copy link</button>
+        <button type="button" class="quiet" id="open">Open it</button>
+      </div>
+    </div>
+  </main>
+  <script>
+    const MESSAGE = "Silly, why are you still looking for a video while your bestie is already with you?";
+    const ITERATIONS = 120000;
+    const form = document.getElementById("maker");
+    const preview = document.getElementById("preview");
+    const warn = document.getElementById("warn");
+    const out = document.getElementById("out");
+    const linkBox = document.getElementById("link");
+    const names = ["nick", "birthday", "chocolate", "anniversary", "pet", "km", "called"];
+
+    function glue(value) {
+      return String(value).toLowerCase().replace(/[^a-z0-9]/g, "");
+    }
+
+    function pieces() {
+      return names.map((name) => glue(form.elements[name].value));
+    }
+
+    function b64(bytes) {
+      let bin = "";
+      bytes.forEach((n) => { bin += String.fromCharCode(n); });
+      return btoa(bin);
+    }
+
+    async function derive(password, salt) {
+      const material = await crypto.subtle.importKey(
+        "raw",
+        new TextEncoder().encode(password),
+        "PBKDF2",
+        false,
+        ["deriveKey"]
+      );
+      return crypto.subtle.deriveKey(
+        { name: "PBKDF2", salt, iterations: ITERATIONS, hash: "SHA-256" },
+        material,
+        { name: "AES-GCM", length: 256 },
+        false,
+        ["encrypt"]
+      );
+    }
+
+    async function seal(password) {
+      const salt = crypto.getRandomValues(new Uint8Array(16));
+      const iv = crypto.getRandomValues(new Uint8Array(12));
+      const key = await derive(password, salt);
+      const cipher = await crypto.subtle.encrypt(
+        { name: "AES-GCM", iv },
+        key,
+        new TextEncoder().encode(MESSAGE)
+      );
+      return { s: b64(salt), i: b64(iv), c: b64(new Uint8Array(cipher)) };
+    }
+
+    function refresh() {
+      const parts = pieces();
+      preview.textContent = parts.join("") || "…";
+    }
+
+    form.addEventListener("input", refresh);
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      warn.textContent = "";
+      const parts = pieces();
+      if (parts.some((part) => part === "")) {
+        warn.textContent = "Fill every line. A missing piece changes the whole secret.";
+        return;
+      }
+      const password = parts.join("");
+      const button = form.querySelector("button");
+      button.disabled = true;
+      button.textContent = "Sealing…";
+      const packed = await seal(password);
+      const url = new URL("./", location.href);
+      url.hash = "v=" + encodeURIComponent(JSON.stringify(packed));
+      linkBox.value = url.href;
+      out.hidden = false;
+      button.disabled = false;
+      button.textContent = "Make my link";
+      out.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    });
+
+    document.getElementById("copy").addEventListener("click", async () => {
+      linkBox.focus();
+      linkBox.select();
+      try {
+        await navigator.clipboard.writeText(linkBox.value);
+        document.getElementById("copy").textContent = "Copied";
+      } catch (err) {
+        document.execCommand("copy");
+        document.getElementById("copy").textContent = "Copied";
+      }
+    });
+
+    document.getElementById("open").addEventListener("click", () => {
+      if (linkBox.value) window.open(linkBox.value, "_blank");
+    });
+
+    refresh();
+  </script>
+</body>
+</html>
