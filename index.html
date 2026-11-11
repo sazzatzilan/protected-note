@@ -166,6 +166,22 @@
       line-height: 1.45;
     }
 
+    .recipe, .sample {
+      font-family: "Segoe UI", system-ui, sans-serif;
+      font-size: 0.92rem;
+      line-height: 1.4;
+      word-break: break-word;
+    }
+
+    .sample {
+      margin-top: 8px;
+      padding: 8px 10px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: #fff;
+      color: var(--ink);
+    }
+
     form { margin-top: 16px; }
 
     label {
@@ -300,7 +316,9 @@
     <div class="ask" id="ask" role="dialog" aria-modal="true" aria-labelledby="ask-title">
       <h1 id="ask-title">Your bestie made you a video.</h1>
       <p>It's just for you. But you don't get to press play until you prove you're worthy of it.</p>
-      <p>One secret, all lowercase, no spaces. Squish these together: their nickname, their birthday, the chocolate they'd pick every time, the day you became friends, their pet's name, how many kilometers apart you are, and the little name they call you.</p>
+      <p>All lowercase, no spaces. Join them in this order:</p>
+      <p class="recipe">nickname + birthday date only + favourite chocolate + friendship anniversary date + pet name + distance in kilometers + what they call you</p>
+      <p class="sample">Sample: kitty01dairymilk01tom10dumb</p>
       <form id="gate">
         <label for="secret">Password</label>
         <input id="secret" name="secret" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="go" placeholder="the whole secret">
