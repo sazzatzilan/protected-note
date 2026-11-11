@@ -25,7 +25,7 @@
       min-height: 100dvh;
       color: var(--ink);
       font-family: "Segoe UI", system-ui, sans-serif;
-      background: #14110f;
+      background: #e6e2dc;
     }
 
     .desk {
@@ -33,9 +33,7 @@
       display: grid;
       place-items: center;
       padding: 22px 14px;
-      background:
-        linear-gradient(160deg, rgba(20, 16, 13, 0.28), rgba(20, 16, 13, 0.55)),
-        url("poster.jpg") center / cover no-repeat;
+      background: #e6e2dc;
     }
 
     .window {
@@ -44,9 +42,9 @@
       display: flex;
       flex-direction: column;
       background: #f7f4ef;
-      border: 1px solid rgba(255, 255, 255, 0.35);
+      border: 1px solid #ddd4c8;
       border-radius: 12px;
-      box-shadow: 0 30px 80px rgba(0, 0, 0, 0.38);
+      box-shadow: 0 16px 40px rgba(50, 36, 22, 0.12);
       overflow: hidden;
     }
 
@@ -106,27 +104,12 @@
     }
 
     .thumb {
-      position: relative;
-      display: block;
-      height: 78px;
-      border-radius: 6px;
-      overflow: hidden;
-      background: #111 center / cover no-repeat;
-      background-image: url("poster.jpg");
-      box-shadow: 0 1px 0 rgba(255, 255, 255, 0.6) inset, 0 8px 16px rgba(50, 32, 16, 0.18);
-    }
-
-    .thumb i {
-      position: absolute;
-      right: 6px;
-      bottom: 6px;
-      width: 22px;
-      height: 22px;
-      border-radius: 50%;
-      background: rgba(0, 0, 0, 0.62);
       display: grid;
       place-items: center;
+      height: 92px;
     }
+
+    .thumb svg { display: block; filter: drop-shadow(0 6px 8px rgba(50, 32, 16, 0.12)); }
 
     .name {
       display: block;
@@ -239,10 +222,8 @@
       display: grid;
       place-items: center;
       padding: 28px 22px 88px;
-      background:
-        linear-gradient(to bottom, rgba(0, 0, 0, 0.35), rgba(0, 0, 0, 0.48)),
-        url("poster.jpg") center / cover no-repeat;
-      color: #fffaf3;
+      background: #111;
+      color: #f7f1e8;
       text-align: center;
     }
 
@@ -299,9 +280,14 @@
       <div class="files">
         <button class="file" id="file" type="button">
           <span class="thumb" aria-hidden="true">
-            <i>
-              <svg width="10" height="10" viewBox="0 0 10 10"><path d="M2.2 1.4v7.2L8.4 5z" fill="white"/></svg>
-            </i>
+            <svg width="68" height="84" viewBox="0 0 68 84">
+              <path d="M8 2h34l18 18v60a4 4 0 0 1-4 4H8a4 4 0 0 1-4-4V6a4 4 0 0 1 4-4z" fill="#fff"/>
+              <path d="M42 2v18h18" fill="#efeae4"/>
+              <rect x="14" y="30" width="40" height="26" rx="3" fill="#2a2623"/>
+              <path d="M30 37.5v11l10-5.5z" fill="#fff"/>
+              <rect x="14" y="62" width="26" height="12" rx="2" fill="#b42318"/>
+              <text x="27" y="71.5" text-anchor="middle" fill="#fff" font-family="Segoe UI, sans-serif" font-size="8" font-weight="700">MP4</text>
+            </svg>
           </span>
           <span class="name">for you.mp4</span>
         </button>
